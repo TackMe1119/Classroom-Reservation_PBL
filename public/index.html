@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大学教室予約システム</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-banner">
+            <div class="header-overlay">
+                <h1 class="logo">大学教室予約システム</h1>
+            </div>
+        </div>
+        <div id="auth-container">
+            <div id="user-info" class="hidden">
+                <span id="user-name"></span> さん
+                <button id="profile-button">設定</button>
+                <button id="admin-panel-button" class="hidden">管理者パネル</button>
+                <button id="logout-button">ログアウト</button>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content">
+
+        <div id="login-view">
+            <div class="login-form-container">
+                <form id="login-form">
+                    <h2>ログイン</h2>
+                    <label for="login-group-select">団体名</label>
+                    <select id="login-group-select" name="login-id" required>
+                        <option value="">団体を選択してください</option>
+                    </select>
+
+                    <label for="login-pass">パスワード</label>
+                    <input type="password" id="login-pass" name="login-pass" required>
+
+                    <div class="auth-links">
+                        <a href="#" id="forgot-password-link">パスワードを忘れましたか？</a>
+                    </div>
+
+                    <button type="submit">ログイン</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="home-view" class="hidden">
+            <h2>ホーム</h2>
+
+            <!-- お知らせ欄を追加 -->
+            <div id="student-notice" class="student-notice-box">
+                <h3><i class="fas fa-info-circle"></i> お知らせ</h3>
+                <div id="notice-content">
+                    <!-- 管理者が設定した内容が表示される -->
+                </div>
+            </div>
+
+            <div class="home-menu">
+                <div id="navigate-to-reservation" class="home-menu-item">
+                    <i class="fas fa-calendar-plus fa-3x"></i>
+                    <span>教室を予約する</span>
+                </div>
+                <div id="navigate-to-calendar" class="home-menu-item">
+                    <i class="fas fa-calendar-alt fa-3x"></i>
+                    <span>カレンダー表示</span>
+                </div>
+                <div id="navigate-to-history" class="home-menu-item">
+                    <i class="fas fa-history fa-3x"></i>
+                    <span>予約履歴</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="reservation-view" class="hidden">
+            <button class="back-to-home-button"><i class="fas fa-arrow-left"></i> ホームに戻る</button>
+            <h2>教室を予約する</h2>
+            
+            <div id="reservation-controls">
+                <div class="control-group">
+                    <label for="map-date-picker">日付を選択:</label>
+                    <input type="date" id="map-date-picker">
+                </div>
+                <div class="control-group">
+                    <label for="floor-selector">階を選択:</label>
+                    <select id="floor-selector">
+                        <option value="1">1階</option>
+                        <option value="2">2階</option>
+                        <option value="3">3階</option>
+                        <option value="4">4階</option>
+                    </select>
+                </div>
+                <div class="legend">
+                    <span class="legend-item available"></span> 予約可能
+                    <span class="legend-item reserved"></span> 予約済み
+                    <span class="legend-item no-sound"></span> 音出し禁止
+                </div>
+            </div>
+
+            <div id="floor-map-container">
+                <svg id="floor-map-svg" viewBox="0 0 800 600" style="width: 100%; height: auto; border: 1px solid #ccc;">
+                    <text x="10" y="30" font-size="24">日付と階を選択してください</text>
+                </svg>
+            </div>
+
+            <div id="reservation-content" class="hidden">
+                <section id="building-section">
+                    <h3>1. 建物を選択</h3>
+                    <ul id="building-list"></ul>
+                </section>
+                <section id="classroom-section" class="hidden">
+                    <h3>2. 教室を選択</h3>
+                    <ul id="classroom-list"></ul>
+                </section>
+            </div>
+        </div>
+        
+        <!-- カレンダー表示ビュー（既存の部分を更新） -->
+    <div id="calendar-view" class="hidden">
+        <button class="back-to-home-button">
+            <i class="fas fa-arrow-left"></i> ホームに戻る
+        </button>
+        <h2>予約カレンダー</h2>
+    
+        <div id="calendar-controls">
+            <button id="prev-month-btn"><i class="fas fa-chevron-left"></i> 前月</button>
+            <span id="current-month-year"></span>
+            <button id="next-month-btn">翌月 <i class="fas fa-chevron-right"></i></button>
+        </div>
+    
+        <div id="calendar-container"></div>
+    
+        <div id="calendar-legend">
+            <h4>凡例</h4>
+            <div class="legend-item">
+                <span class="legend-color available"></span>
+                <span>予約可能</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color has-reservation"></span>
+                <span>予約あり</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color past"></span>
+                <span>過去の日付</span>
+            </div>
+        </div>
+    
+        <div id="day-reservations" class="hidden">
+            <h3 id="selected-date-title"></h3>
+            <ul id="day-reservations-list"></ul>
+        </div>
+    </div>
+
+        <div id="history-view" class="hidden">
+            <button class="back-to-home-button"><i class="fas fa-arrow-left"></i> ホームに戻る</button>
+            <h2>予約履歴</h2>
+            <section id="history-section">
+                <h3>申請中のリクエスト</h3>
+                <ul id="requests-list"></ul>
+                <h3>確定済みの予約</h3>
+                <ul id="reservations-list"></ul>
+            </section>
+        </div>
+
+        <div id="profile-view" class="hidden">
+            <button class="back-to-home-button"><i class="fas fa-arrow-left"></i> ホームに戻る</button>
+            <h2>設定</h2>
+            
+            <div class="settings-container">
+                <!-- 基本情報セクション -->
+                <div class="settings-section">
+                    <h3>団体情報</h3>
+                    <div class="user-info-display">
+                        <p><strong>団体名:</strong> <span id="display-name"></span></p>
+                        <p><strong>ログインID:</strong> <span id="display-login-id"></span></p>
+                    </div>
+                </div>
+                
+                <!-- パスワード変更セクション -->
+                <div class="settings-section">
+                    <h3>パスワード変更</h3>
+                    <form id="password-change-form">
+                        <label for="current-password">現在のパスワード</label>
+                        <input type="password" id="current-password" required>
+                        
+                        <label for="new-password">新しいパスワード</label>
+                        <input type="password" id="new-password" required minlength="6">
+                        
+                        <label for="confirm-new-password">新しいパスワード（確認）</label>
+                        <input type="password" id="confirm-new-password" required minlength="6">
+                        
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-key"></i> パスワードを変更
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 初回ログイン設定画面 -->
+        <div id="first-login-setup-view" class="hidden">
+            <h2>初回ログイン設定</h2>
+            <div class="first-login-container">
+                <p class="info-message">
+                    <i class="fas fa-info-circle"></i>
+                    初回ログインのため、新しいパスワードの設定が必要です。
+                </p>
+                <form id="first-login-form">
+                    <label for="first-login-new-password">新しいパスワード</label>
+                    <input type="password" id="first-login-new-password" required minlength="6" 
+                        placeholder="6文字以上で入力してください">
+                    
+                    <label for="first-login-confirm-password">新しいパスワード（確認）</label>
+                    <input type="password" id="first-login-confirm-password" required minlength="6"
+                        placeholder="もう一度入力してください">
+                    
+                    <button type="submit">設定を完了する</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 管理者ビュー（完全に置き換え） -->
+        <div id="admin-view" class="hidden">
+            <button class="back-to-home-button">
+                <i class="fas fa-arrow-left"></i> ホームに戻る
+            </button>
+            <h2>管理者パネル</h2>
+            
+            <!-- タブメニュー -->
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="closure-matrix">教室使用制限設定</button>
+                <button class="admin-tab" data-tab="permanent-closure">恒久的な使用禁止</button>
+                <button class="admin-tab" data-tab="notice-management">お知らせ管理</button>
+                <button class="admin-tab" data-tab="password-reset">パスワードリセット</button>
+            </div>
+            
+            <!-- チェックボックス式の使用禁止設定 -->
+            <div id="closure-matrix-tab" class="admin-tab-content active">
+                <h3>教室ごとの使用制限設定</h3>
+                <p class="info-text">各教室・各日付ごとに使用制限を設定できます。</p>
+                
+                <div id="classroom-matrix-container">
+                    <!-- JavaScriptで動的に生成 -->
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="save-closures" class="btn btn-primary">変更を保存</button>
+                </div>
+            </div>
+            
+            <!-- 恒久的な使用禁止（既存のまま残す） -->
+            <div id="permanent-closure-tab" class="admin-tab-content hidden">
+                <h3>教室の恒久的な使用可否設定</h3>
+                <ul id="admin-classroom-list"></ul>
+            </div>
+
+            <!-- お知らせ管理（新規追加） -->
+            <div id="notice-management-tab" class="admin-tab-content hidden">
+                <h3>学生へのお知らせ管理</h3>
+                <div class="notice-editor">
+                    <label for="admin-notice-text">お知らせ内容：</label>
+                    <textarea id="admin-notice-text" rows="5" placeholder="学生に表示するお知らせを入力してください..."></textarea>
+                    <button id="save-notice" class="btn btn-primary">お知らせを保存</button>
+                </div>
+            </div>
+
+            <!-- パスワードリセット管理（新規追加） -->
+            <div id="password-reset-tab" class="admin-tab-content hidden">
+                <h3>団体パスワードリセット</h3>
+                <div class="password-reset-section">
+                    <p class="info-text">
+                        団体のパスワードを管理者権限でリセットできます。<br>
+                        リセット後、新しいパスワードが生成され、該当団体に直接連絡してください。
+                    </p>
+                    
+                    <form id="admin-password-reset-form">
+                        <label for="reset-target-organization">リセット対象団体</label>
+                        <select id="reset-target-organization" required>
+                            <option value="">団体を選択してください</option>
+                        </select>
+                        
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-refresh"></i> パスワードをリセット
+                        </button>
+                    </form>
+
+                    <div id="reset-result" class="reset-result-display hidden">
+                        <h4>リセット完了</h4>
+                        <div class="result-info">
+                            <p><strong>団体名:</strong> <span id="reset-org-name"></span></p>
+                            <p><strong>新しいパスワード:</strong> <span id="new-password-display"></span></p>
+                            <p class="warning-text">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                この情報を該当団体に安全な方法で連絡してください。
+                            </p>
+                        </div>
+                        <button id="copy-password" class="btn btn-secondary">
+                            <i class="fas fa-copy"></i> パスワードをコピー
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="forgot-password-view" class="hidden">
+            <button class="back-to-login-button"><i class="fas fa-arrow-left"></i> ログインに戻る</button>
+            <h2>パスワードを忘れた場合</h2>
+            <div class="forgot-password-info">
+                <div class="info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>パスワードの再設定について</h3>
+                    <p>セキュリティのため、パスワードのリセットは管理者のみが行えます。</p>
+                </div>
+                
+                <div class="contact-info">
+                    <h4>お困りの場合は、以下にお問い合わせください：</h4>
+                    <ul>
+                        <li><strong>システム管理者:</strong> 大阪大学　全学教育推進機構</li>
+                        <li><strong>問い合わせフォーム:</strong> https://forms.office.com/Pages/ResponsePage.aspx?id=4I7Qo5BbM0-dFJYCO7eKYqKPnFg9VsVLuyR9q4P19ZtUQTI3MTk0NjBTMENRSEJDR1FFN0pNTTc5NCQlQCN0PWcu</li>
+                        <li><strong>窓口業務時間:</strong> 平日 8:30-16:30</li>
+                    </ul>
+                </div>
+
+                <div class="required-info">
+                    <h4>お問い合わせの際は以下をお伝えください：</h4>
+                    <ul>
+                        <li>団体名</li>
+                        <li>連絡先（メールアドレス）</li>
+                        <li>本人確認ができる情報</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="reservation-modal" class="hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>教室予約申請</h3>
+                <span id="close-modal-button" class="close-button">&times;</span>
+            </div>
+            <!-- reservation-modalの中に追加（modal-headerの後） -->
+            <div id="sound-restriction-warning" class="warning-box hidden">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="sound-restriction-text"></span>
+            </div>
+            <form id="reservation-form">
+                <input type="hidden" id="modal-classroom-id" name="classroomId">
+                <p><strong>教室:</strong> <span id="modal-classroom-name"></span></p>
+                <p><strong>収容人数:</strong> <span id="modal-classroom-capacity"></span></p>
+                <hr>
+                <label for="reservation-date">利用希望日</label>
+                <p>予約可能期間: <strong id="reservation-period-text"></strong></p>
+                <input type="date" id="reservation-date" required>
+                
+                <label for="reservation-purpose">利用目的</label>
+                <textarea id="reservation-purpose" rows="3" required></textarea>
+                
+                <label for="reservation-participants">参加予定人数</label>
+                <input type="number" id="reservation-participants" min="1" required>
+
+                <button type="submit">予約申請を送信</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+
+</body>
+</html>

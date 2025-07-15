@@ -1,0 +1,1206 @@
+/* 全体の基本スタイル */
+:root {
+    --primary-color: #337ab7;
+    --success-color: #5cb85c;
+    --danger-color: #d9534f;
+    --warning-color: #f0ad4e;
+    --light-gray: #f8f9fa;
+    --gray-border: #dee2e6;
+    --text-color: #333;
+    --text-light: #6c757d;
+    --white: #fff;
+    --border-radius: 8px;
+    --transition: all 0.2s ease-in-out;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    background-color: var(--white);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* ヘッダーのデザイン */
+header {
+    padding: 0;
+    background-color: var(--white);
+    border-bottom: 1px solid var(--gray-border);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.header-banner {
+    height: 200px;
+    background-color: #4a5a70;
+    background-image: url('https://www.celas.osaka-u.ac.jp/wp-content/themes/celas-website/images/celas.jpg');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: var(--white);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+#auth-container {
+    padding: 10px 30px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px; 
+    min-height: 60px;
+}
+
+#user-info { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+/* ログインフォームのデザイン */
+#login-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 20px;
+    background-color: var(--light-gray);
+    min-height: calc(100vh - 260px);
+}
+
+.login-form-container {
+    background: var(--white);
+    padding: 30px 40px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 1px solid var(--gray-border);
+    width: 100%;
+    max-width: 450px;
+}
+
+#login-form label {
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 0.9em;
+    color: var(--text-light);
+}
+
+#login-form select, #login-form input {
+    width: 100%;
+    font-size: 16px;
+    padding: 10px;
+}
+
+#login-form button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: 20px;
+    background-color: #333;
+    border-color: #333;
+}
+#login-form button:hover {
+    background-color: #555;
+}
+.auth-links {
+    text-align: right;
+    margin-top: 15px;
+}
+.auth-links a { 
+    font-size: 0.9em;
+    color: var(--primary-color);
+}
+
+/* ホーム画面のスタイル */
+#home-view, #reservation-view, #calendar-view, #profile-view, #history-view, #admin-view, #forgot-password-view {
+    padding: 20px;
+}
+
+#home-view h2 {
+    text-align: center;
+    font-size: 2em;
+    color: var(--text-color);
+    border-bottom: none;
+    margin-bottom: 40px;
+}
+.home-menu {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+}
+.home-menu-item {
+    background: var(--white);
+    border: 1px solid var(--gray-border);
+    border-radius: var(--border-radius);
+    width: 180px;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    color: var(--text-color);
+}
+.home-menu-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    border-color: var(--primary-color);
+}
+.home-menu-item i {
+    color: var(--primary-color);
+}
+.home-menu-item span {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+/* フォーム要素の共通スタイル */
+input[type="text"], 
+input[type="password"], 
+input[type="email"],
+input[type="date"], 
+input[type="number"], 
+textarea,
+select {
+    font-size: 14px;
+    padding: 8px 12px;
+    border: 1px solid var(--gray-border);
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+button {
+    font-size: 14px;
+    padding: 8px 16px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* メインコンテンツ */
+main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h2 { 
+    border-bottom: 2px solid var(--primary-color); 
+    padding-bottom: 10px; 
+    margin-bottom: 20px; 
+    color: var(--primary-color); 
+}
+
+/* 戻るボタン */
+.back-to-home-button, .back-to-login-button { 
+    margin-bottom: 20px;
+    background-color: var(--white);
+    color: var(--text-light);
+    border: 1px solid var(--gray-border);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.back-to-home-button:hover, .back-to-login-button:hover {
+    background-color: var(--light-gray);
+    color: var(--text-color);
+}
+
+.hidden { display: none !important; }
+
+/* --- 既存のスタイル --- */
+#building-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+#building-list button { background: var(--white); color: var(--primary-color); border: 1px solid var(--primary-color); min-width: 120px; }
+#building-list button:hover, #building-list button.active { background: var(--primary-color); color: var(--white); }
+#classroom-list { list-style: none; padding: 0; border: 1px solid var(--gray-border); border-radius: var(--border-radius); overflow: hidden; }
+#classroom-list li { padding: 15px; border-bottom: 1px solid var(--gray-border); cursor: pointer; transition: var(--transition); }
+#classroom-list li:last-child { border-bottom: none; }
+#classroom-list li:hover { background-color: #e9ecef; }
+#admin-classroom-list { list-style: none; padding: 0; }
+#admin-classroom-list li { padding: 10px; border-bottom: 1px solid #eee; }
+#history-section h3 { border-bottom: 1px solid #ccc; padding-bottom: 8px; margin-top: 30px; }
+#history-section ul { list-style: none; padding: 0; }
+#history-section li { background: #f9f9f9; border: 1px solid var(--gray-border); padding: 15px; margin-bottom: 10px; border-radius: var(--border-radius); }
+#reservation-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+.modal-content { background-color: var(--white); padding: 20px 30px; border-radius: var(--border-radius); width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-border); padding-bottom: 10px; margin-bottom: 20px; }
+.close-button { font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; border: none; background: none; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+
+/* 予約画面の操作パネル */
+#reservation-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    padding: 15px;
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 凡例のスタイル */
+.legend {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: auto; /* 右寄せ */
+}
+
+.legend-item {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    border: 1px solid #777;
+}
+
+.legend-item.available { background-color: #5cb85c; }
+.legend-item.reserved { background-color: #d9534f; }
+
+
+/* 平面図SVGのスタイル */
+#floor-map-container {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.classroom-shape {
+    stroke: #333; /* 教室の枠線 */
+    stroke-width: 1;
+    transition: all 0.2s ease;
+}
+
+/* 予約可能な教室のスタイル */
+.classroom-shape.available {
+    fill: #5cb85c !important; /* 緑色 */
+    cursor: pointer;
+    opacity: 0.7;
+}
+.classroom-shape.available:hover {
+    fill: #4a9d4a !important; /* 少し濃い緑 */
+    stroke-width: 2.5;
+    stroke: var(--primary-color);
+    opacity: 0.7;
+}
+
+/* 予約済みの教室のスタイル */
+.classroom-shape.reserved {
+    fill: #d9534f !important;/* 赤色 */
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* 音出し禁止の教室のスタイル */
+.classroom-shape.no-sound {
+    fill: #ffd700 !important; /* 黄色 */
+    cursor: pointer;
+    opacity: 0.7;
+}
+.classroom-shape.no-sound:hover {
+    fill: #ffcc00 !important; /* 少し濃い黄色 */
+    stroke-width: 2.5;
+    stroke: var(--warning-color);
+    opacity: 0.7;
+}
+
+/* 凡例に音出し禁止を追加 */
+.legend-item.no-sound { 
+    background-color: #ffd700; 
+}
+
+/* カレンダーのスタイル */
+#calendar-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin: 30px 0;
+}
+
+#calendar-controls button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95em;
+}
+
+#calendar-controls button:hover {
+    background: #2968a3;
+}
+
+#current-month-year {
+    font-size: 1.5em;
+    font-weight: bold;
+    min-width: 240px;
+    text-align: center;
+}
+
+#calendar-container {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-header {
+    font-weight: bold;
+    text-align: center;
+    padding: 12px 8px;
+    background: var(--light-gray);
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    min-height: 60px;
+    border: 1px solid var(--gray-border);
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.calendar-day:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.calendar-day.other-month {
+    color: #ccc;
+    background: #fafafa;
+}
+
+.calendar-day.past {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.calendar-day.past:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.calendar-day.has-reservation {
+    background: #ffe4e1;
+    border-color: var(--danger-color);
+}
+
+.calendar-day.available {
+    background: #e8f5e9;
+    border-color: var(--success-color);
+}
+
+.calendar-day.sunday {
+    color: #d32f2f;
+}
+
+.calendar-day.saturday {
+    color: #1976d2;
+}
+
+.calendar-day .day-number {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.calendar-day .reservation-count {
+    font-size: 0.75em;
+    color: var(--danger-color);
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    border: 1px solid var(--danger-color);
+}
+
+/* 凡例のスタイル - バランスを改善 */
+#calendar-legend {
+    max-width: 800px;  /* カレンダーと同じ幅に */
+    margin: 30px auto;  /* 中央寄せ */
+    padding: 20px;
+    background: var(--light-gray);
+    border-radius: var(--border-radius);
+    display: flex;
+    justify-content: space-evenly;  /* 均等配置 */
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+#calendar-legend h4 {
+    margin: 0;
+    white-space: nowrap;
+    color: var(--text-color);
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.legend-item span {
+    white-space: nowrap;
+    font-size: 0.9em;
+}
+
+.legend-color {
+    width: 24px;
+    height: 24px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.legend-color.available {
+    background: #e8f5e9;
+    border-color: var(--success-color);
+}
+
+.legend-color.has-reservation {
+    background: #ffe4e1;
+    border-color: var(--danger-color);
+}
+
+.legend-color.past {
+    background: #f5f5f5;
+}
+
+/* 日付詳細表示 */
+#day-reservations {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+#day-reservations h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+}
+
+#day-reservations-list {
+    list-style: none;
+    padding: 0;
+}
+
+#day-reservations-list li {
+    padding: 15px;
+    border-bottom: 1px solid var(--gray-border);
+    background: var(--light-gray);
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+#day-reservations-list li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    #calendar-container {
+        padding: 10px;
+    }
+    
+    .calendar-grid {
+        gap: 4px;
+    }
+    
+    .calendar-day {
+        min-height: 50px;
+        padding: 4px;
+    }
+    
+    .calendar-day .day-number {
+        font-size: 1em;
+    }
+    
+    .calendar-header {
+        padding: 8px 4px;
+        font-size: 0.8em;
+    }
+    
+    #calendar-legend {
+        padding: 15px;
+        gap: 15px;
+    }
+    
+    #calendar-legend h4 {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+}
+
+/* 管理画面のスタイル */
+.admin-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--gray-border);
+}
+
+.admin-tab {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    color: var(--text-color);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.admin-tab:hover {
+    background: var(--light-gray);
+}
+
+.admin-tab.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: bold;
+}
+
+.admin-tab-content {
+    margin-top: 20px;
+}
+
+/* 管理画面の情報テキスト */
+.info-text {
+    color: var(--text-light);
+    margin-bottom: 20px;
+    font-size: 0.95em;
+}
+
+/* マトリックステーブル */
+#classroom-matrix-container {
+    overflow-x: auto;
+    margin-bottom: 30px;
+    border: 1px solid var(--gray-border);
+    border-radius: var(--border-radius);
+}
+
+.classroom-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.classroom-matrix th,
+.classroom-matrix td {
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    text-align: center;
+    min-width: 100px;
+}
+
+.classroom-matrix th {
+    background: #f5f5f5;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.classroom-matrix th:first-child,
+.classroom-matrix td:first-child {
+    position: sticky;
+    left: 0;
+    background: #f8f9fa;
+    z-index: 5;
+    text-align: left;
+    font-weight: bold;
+    min-width: 80px;
+}
+
+.date-header {
+    font-size: 0.9em;
+}
+
+.date-header .date-num {
+    display: block;
+    font-size: 1.1em;
+    margin-top: 3px;
+    font-weight: normal;
+}
+
+/* セレクトボックス */
+.restriction-select {
+    width: 100%;
+    padding: 4px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+.restriction-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* セレクトボックスの選択肢に応じた背景色 */
+.restriction-select[value="closed"],
+.restriction-select option[value="closed"]:checked {
+    background-color: #ffebee;
+}
+
+.restriction-select[value="no-sound"],
+.restriction-select option[value="no-sound"]:checked {
+    background-color: #fff3e0;
+}
+
+/* アクションボタン */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2968a3;
+}
+
+.btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.btn-warning {
+    background: var(--warning-color);
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #ec971f;
+}
+
+/* お知らせ管理 */
+.notice-editor {
+    background: var(--light-gray);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    max-width: 800px;
+}
+
+.notice-editor label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.notice-editor textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--gray-border);
+    border-radius: 4px;
+    resize: vertical;
+    margin-bottom: 20px;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.notice-editor textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* 学生向けお知らせボックス */
+.student-notice-box {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.student-notice-box h3 {
+    color: #856404;
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.student-notice-box #notice-content {
+    color: #856404;
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+/* 予約モーダル内の警告 */
+.warning-box {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.warning-box i {
+    font-size: 1.2em;
+    flex-shrink: 0;
+}
+
+/* パスワードリセット管理 */
+.password-reset-section {
+    background: var(--light-gray);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    max-width: 800px;
+}
+
+.password-reset-section label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.password-reset-section select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--gray-border);
+    border-radius: 4px;
+}
+
+.reset-result-display {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.reset-result-display h4 {
+    color: #155724;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.result-info {
+    margin-bottom: 15px;
+}
+
+.result-info p {
+    margin: 8px 0;
+    color: #155724;
+}
+
+.warning-text {
+    color: #856404;
+    background: #fff3cd;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* パスワードを忘れた場合のページ */
+.forgot-password-info {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.info-box {
+    background: #e3f2fd;
+    border: 1px solid #90caf9;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.info-box i {
+    font-size: 1.5em;
+    color: #1976d2;
+    flex-shrink: 0;
+    margin-top: 5px;
+}
+
+.info-box h3 {
+    margin: 0 0 10px 0;
+    color: #1976d2;
+}
+
+.info-box p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.contact-info, .required-info {
+    background: var(--white);
+    border: 1px solid var(--gray-border);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.contact-info h4, .required-info h4 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 8px;
+}
+
+.contact-info ul, .required-info ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.contact-info li, .required-info li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .classroom-matrix th,
+    .classroom-matrix td {
+        padding: 6px;
+        font-size: 0.85em;
+        min-width: 80px;
+    }
+    
+    .date-header .date-num {
+        font-size: 1em;
+    }
+    
+    .restriction-select {
+        font-size: 0.8em;
+        padding: 3px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.95em;
+    }
+
+    .admin-tabs {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .admin-tab {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+}
+
+/* 既存の恒久的使用禁止リストのスタイル（そのまま残す） */
+#admin-classroom-list {
+    list-style: none;
+    padding: 0;
+}
+
+#admin-classroom-list li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+}
+
+#admin-classroom-list li:hover {
+    background: var(--light-gray);
+}
+
+#admin-classroom-list label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    width: 100%;
+}
+
+#admin-classroom-list input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* 初回ログイン設定画面 */
+#first-login-setup-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 260px);
+    background-color: var(--light-gray);
+    padding: 20px;
+}
+
+.first-login-container {
+    background: var(--white);
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 1px solid var(--gray-border);
+    width: 100%;
+    max-width: 500px;
+}
+
+.info-message {
+    background-color: #e3f2fd;
+    border: 1px solid #90caf9;
+    color: #1565c0;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-message i {
+    font-size: 1.2em;
+    flex-shrink: 0;
+}
+
+#first-login-form label {
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 20px;
+    font-weight: bold;
+    color: var(--text-light);
+}
+
+#first-login-form input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid var(--gray-border);
+    border-radius: 4px;
+}
+
+#first-login-form button {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    margin-top: 25px;
+    background-color: var(--success-color);
+    border: none;
+    color: white;
+    font-weight: bold;
+}
+
+#first-login-form button:hover {
+    background-color: #4a9d4a;
+}
+
+/* 設定画面のスタイル */
+.settings-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.settings-section {
+    background: var(--white);
+    border: 1px solid var(--gray-border);
+    border-radius: var(--border-radius);
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.settings-section h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    font-size: 1.2em;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+}
+
+.user-info-display {
+    margin-bottom: 15px;
+}
+
+.user-info-display p {
+    margin: 10px 0;
+    color: var(--text-color);
+    font-size: 1em;
+}
+
+.user-info-display strong {
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+#password-change-form label {
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    font-weight: bold;
+    color: var(--text-light);
+}
+
+#password-change-form input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid var(--gray-border);
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+#password-change-form button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#password-change-form button:hover {
+    background-color: #2968a3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-secondary i {
+    font-size: 1.1em;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 0 10px;
+    }
+    
+    .settings-section {
+        padding: 20px;
+    }
+
+    .forgot-password-info {
+        padding: 0 10px;
+    }
+    
+    .info-box {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .info-box i {
+        margin: 0;
+    }
+}
