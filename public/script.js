@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let closureData = {};
     let currentCalendarDate = new Date();
     let currentState = { view: 'login' };
+
+    // セッションタイムアウト用の変数を追加
+    let inactivityTimer;
+    const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15分（ミリ秒）
     
     // ========== DOM要素の参照 ==========
     const elements = {
@@ -151,6 +155,35 @@ document.addEventListener('DOMContentLoaded', () => {
             // ログイン画面への遷移はhandleLogout関数で行うため、ここでは行わない
         }
     };
+
+    // ========== セッションタイムアウト管理 ==========
+    const resetInactivityTimer = () => {
+        // 既存のタイマーをクリア
+        if (inactivityTimer) {
+            clearTimeout(inactivityTimer);
+        }
+        
+        // ログインしている場合のみタイマーを設定
+        if (token) {
+            inactivityTimer = setTimeout(() => {
+                // タイムアウト警告を表示
+                alert('セッションがタイムアウトしました。安全のため自動的にログアウトします。');
+                
+                // 強制ログアウト
+                handleLogout();
+            }, INACTIVITY_TIMEOUT);
+        }
+    };
+
+    // ユーザーのアクティビティを監視
+    const setupActivityMonitoring = () => {
+        // 各種イベントでタイマーをリセット
+        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+        
+        events.forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+    };
     
     // ========== 予約期間計算 ==========
     const getReservationPeriod = () => {
@@ -292,6 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             localStorage.setItem('authToken', data.token);
             await updateUI();
+
+            // タイマーを開始（この行を追加）
+            resetInactivityTimer();
             
             // ★初回ログインチェック
             if (data.organization && data.organization.isFirstLogin) {
@@ -308,6 +344,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const handleLogout = () => {
+        // タイマーをクリア（この部分を追加）
+        if (inactivityTimer) {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = null;
+        }
         localStorage.removeItem('authToken');
         token = null;
         allClassroomsData = [];
@@ -1366,6 +1407,7 @@ document.addEventListener('DOMContentLoaded', () => {
    // ========== 初期化処理 ==========
    const initializeApp = async () => {
         setupEventListeners();
+        setupActivityMonitoring(); // この行を追加
         await populateGroupDropdown();
         
         // トークンが存在する場合のみupdateUIを呼ぶ
