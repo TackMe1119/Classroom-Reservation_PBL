@@ -91,7 +91,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${year}-${month}-${day}`;
     };
     
-    const toYYYYMMDD = (date) => date.toISOString().split('T')[0];
+    const toYYYYMMDD = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
     
     // ========== 状態管理 ==========
     const pushState = (newState, title = '') => {
@@ -251,55 +256,57 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ========== API通信関数 ==========
     const apiCall = async (url, options = {}, isPublic = false) => {
-    const defaultHeaders = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-    };
-
-    // isPublicフラグがfalseの場合（=認証が必要な場合）のみトークンを処理する
-    if (!isPublic) {
-        const currentToken = localStorage.getItem('authToken');
-        if (!currentToken) {
-            // 認証が必要なのにトークンがない場合はエラー
-            handleLogout(); // 念のためログアウト処理も実行
-            throw new Error('認証エラー。再度ログインしてください。');
-        }
-        defaultHeaders['Authorization'] = `Bearer ${currentToken}`;
-    }
-
-    const config = { ...options, headers: defaultHeaders };
+        const defaultHeaders = {
+            'Content-Type': 'application/json',
+            ...options.headers,
+        };
     
-    const response = await fetch(url, config);
-
-    if (!response.ok) {
-        try {
-                const error = await response.json();
-                throw new Error(error.error || `APIエラー: ${response.status}`);
-            } catch (e) {
-                throw new Error(`APIエラー: ${response.status}`);
+            const currentToken = localStorage.getItem('authToken');
+            if (!currentToken) {
+                handleLogout();
+                throw new Error('認証エラー。再度ログインしてください。');
             }
-    }
-    return response.json();
-};
-
-    
-    // ========== ログイン関連 ==========
-    const populateGroupDropdown = async () => {
-        try {
-            const organizations = await apiCall('/api/organizations', {}, true);
-            
-            elements.loginGroupSelect.innerHTML = '<option value="">団体を選択してください</option>';
-            organizations.forEach(org => {
-                const option = document.createElement('option');
-                option.value = org.login_id;
-                option.textContent = org.name;
-                elements.loginGroupSelect.appendChild(option);
-            });
-        } catch (error) {
-            console.error('団体リストの取得エラー:', error);
-            elements.loginGroupSelect.innerHTML = '<option value="">団体の取得に失敗</option>';
+            defaultHeaders['Authorization'] = `Bearer ${currentToken}`;
         }
+    
+        const config = { ...options, headers: defaultHeaders };
+        
+        const response = await fetch(url, config);
+    
+        if (!response.ok) {
+            let errorMessage = `APIエラー: ${response.status}`;
+            try {
+                const errorData = await response.json();
+                if (errorData && errorData.error) {
+                    errorMessage = errorData.error;
+                }
+            } catch (e) {
+                console.error("エラー応答はJSON形式ではありませんでした:", e);
+            }
+            throw new Error(errorMessage);
+        }
+        
+        const text = await response.text();
+        return text ? JSON.parse(text) : {};
     };
+        
+        // ========== ログイン関連 ==========
+        const populateGroupDropdown = async () => {
+            try {
+                const organizations = await apiCall('/api/organizations', {}, true);
+                
+                elements.loginGroupSelect.innerHTML = '<option value="">団体を選択してください</option>';
+                organizations.forEach(org => {
+                    const option = document.createElement('option');
+                    option.value = org.login_id;
+                    option.textContent = org.name;
+                    elements.loginGroupSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('団体リストの取得エラー:', error);
+                elements.loginGroupSelect.innerHTML = '<option value="">団体の取得に失敗</option>';
+            }
+        };
     
     const handleLogin = async (event) => {
         event.preventDefault();
