@@ -1,77 +1,52 @@
-// script.js - 大学教室予約システム
+// 大学教室予約システム
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 スクリプトが読み込まれました');
-    
-    // ========== グローバル変数 ==========
+    // グローバル変数
     let token = null;
     let allClassroomsData = [];
     let closureData = {};
     let currentCalendarDate = new Date();
     let currentState = { view: 'login' };
-
-    // セッションタイムアウト用の変数を追加
     let inactivityTimer;
-    const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15分（ミリ秒）
+    const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15分
     
-    // ========== DOM要素の参照 ==========
+    // DOM要素の参照
     const elements = {
-        // ログイン関連
         loginView: document.getElementById('login-view'),
         loginForm: document.getElementById('login-form'),
         loginGroupSelect: document.getElementById('login-group-select'),
-        
-        // ヘッダー関連
         userInfo: document.getElementById('user-info'),
         userNameSpan: document.getElementById('user-name'),
         logoutButton: document.getElementById('logout-button'),
         adminPanelButton: document.getElementById('admin-panel-button'),
         profileButton: document.getElementById('profile-button'),
         logo: document.querySelector('.logo'),
-        
-        // メインコンテンツ
         mainContent: document.getElementById('main-content'),
         homeView: document.getElementById('home-view'),
-        
-        // ナビゲーション
         navigateToReservation: document.getElementById('navigate-to-reservation'),
         navigateToCalendar: document.getElementById('navigate-to-calendar'),
         navigateToHistory: document.getElementById('navigate-to-history'),
-        
-        // 各ビュー
         reservationView: document.getElementById('reservation-view'),
         calendarView: document.getElementById('calendar-view'),
         historyView: document.getElementById('history-view'),
         profileView: document.getElementById('profile-view'),
         adminView: document.getElementById('admin-view'),
-        forgotPasswordView: document.getElementById('forgot-password-view'),
         firstLoginSetupView: document.getElementById('first-login-setup-view'),
-        
-        // 履歴関連
         requestsList: document.getElementById('requests-list'),
         reservationsList: document.getElementById('reservations-list'),
-        
-        // 管理者
         adminClassroomList: document.getElementById('admin-classroom-list'),
-        
-        // パスワードリセット
-        forgotPasswordLink: document.getElementById('forgot-password-link'),
-        
-        // 予約モーダル
         reservationModal: document.getElementById('reservation-modal'),
         closeModalButton: document.getElementById('close-modal-button'),
         modalClassroomName: document.getElementById('modal-classroom-name'),
         modalClassroomCapacity: document.getElementById('modal-classroom-capacity'),
         modalClassroomIdInput: document.getElementById('modal-classroom-id'),
         reservationForm: document.getElementById('reservation-form'),
-        
-        // フロアマップ
         mapDatePicker: document.getElementById('map-date-picker'),
         floorSelector: document.getElementById('floor-selector'),
         floorMapContainer: document.getElementById('floor-map-container'),
         floorMapSvg: document.getElementById('floor-map-svg'),
     };
     
-    // ========== ユーティリティ関数 ==========
+    // ユーティリティ関数
     const parseJwt = (token) => {
         try {
             const base64Url = token.split('.')[1];
@@ -98,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${year}-${month}-${day}`;
     };
     
-    // ========== 状態管理 ==========
+    // 状態管理
     const pushState = (newState, title = '') => {
         currentState = { ...currentState, ...newState };
         const url = new URL(window.location);
@@ -113,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         history.replaceState(currentState, title, url.toString());
     };
     
-    // ========== ビュー管理 ==========
+    // ビュー管理
     const showView = (viewId) => {
         const views = document.querySelectorAll('#main-content > div[id$="-view"]');
         views.forEach(view => view.classList.add('hidden'));
@@ -131,13 +106,12 @@ document.addEventListener('DOMContentLoaded', () => {
             replaceState({ view: viewId });
         }
         
-        // ホーム画面表示時にお知らせを更新
         if (viewId === 'home-view' && token) {
-            setTimeout(() => loadSystemNotice(), 100); // 少し遅延を入れる
+            setTimeout(() => loadSystemNotice(), 100);
         }
     };
     
-    // ========== UI更新 ==========
+    // UI更新
     const updateUI = async () => {
         token = localStorage.getItem('authToken');
         const payload = token ? parseJwt(token) : null;
@@ -146,51 +120,38 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.userInfo.classList.remove('hidden');
             elements.userNameSpan.textContent = payload.name;
             elements.adminPanelButton.classList.toggle('hidden', payload.role !== 'admin');
-            
-            // ログインが確認されたので、データ取得を行う
             await loadSystemNotice();
             await fetchAllClassrooms();
-
         } else {
-            // ログアウト時の処理
             localStorage.removeItem('authToken');
             token = null;
             allClassroomsData = [];
             elements.userInfo.classList.add('hidden');
-            // ログイン画面への遷移はhandleLogout関数で行うため、ここでは行わない
         }
     };
 
-    // ========== セッションタイムアウト管理 ==========
+    // セッションタイムアウト管理
     const resetInactivityTimer = () => {
-        // 既存のタイマーをクリア
         if (inactivityTimer) {
             clearTimeout(inactivityTimer);
         }
         
-        // ログインしている場合のみタイマーを設定
         if (token) {
             inactivityTimer = setTimeout(() => {
-                // タイムアウト警告を表示
                 alert('セッションがタイムアウトしました。安全のため自動的にログアウトします。');
-                
-                // 強制ログアウト
                 handleLogout();
             }, INACTIVITY_TIMEOUT);
         }
     };
 
-    // ユーザーのアクティビティを監視
     const setupActivityMonitoring = () => {
-        // 各種イベントでタイマーをリセット
         const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-        
         events.forEach(event => {
             document.addEventListener(event, resetInactivityTimer, true);
         });
     };
     
-    // ========== 予約期間計算 ==========
+    // 予約期間計算
     const getReservationPeriod = () => {
         const getWeekNumber = (date) => {
             const baseDate = new Date('2024-01-01');
@@ -254,13 +215,14 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
     
-    // ========== API通信関数 ==========
+    // API通信
     const apiCall = async (url, options = {}, isPublic = false) => {
         const defaultHeaders = {
             'Content-Type': 'application/json',
             ...options.headers,
         };
     
+        if (!isPublic) {
             const currentToken = localStorage.getItem('authToken');
             if (!currentToken) {
                 handleLogout();
@@ -270,7 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     
         const config = { ...options, headers: defaultHeaders };
-        
         const response = await fetch(url, config);
     
         if (!response.ok) {
@@ -289,24 +250,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = await response.text();
         return text ? JSON.parse(text) : {};
     };
-        
-        // ========== ログイン関連 ==========
-        const populateGroupDropdown = async () => {
-            try {
-                const organizations = await apiCall('/api/organizations', {}, true);
-                
-                elements.loginGroupSelect.innerHTML = '<option value="">団体を選択してください</option>';
-                organizations.forEach(org => {
-                    const option = document.createElement('option');
-                    option.value = org.login_id;
-                    option.textContent = org.name;
-                    elements.loginGroupSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('団体リストの取得エラー:', error);
-                elements.loginGroupSelect.innerHTML = '<option value="">団体の取得に失敗</option>';
-            }
-        };
+    
+    // ログイン関連
+    const populateGroupDropdown = async () => {
+        try {
+            const organizations = await apiCall('/api/organizations', {}, true);
+            
+            elements.loginGroupSelect.innerHTML = '<option value="">団体を選択してください</option>';
+            organizations.forEach(org => {
+                const option = document.createElement('option');
+                option.value = org.login_id;
+                option.textContent = org.name;
+                elements.loginGroupSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('団体リストの取得エラー:', error);
+            elements.loginGroupSelect.innerHTML = '<option value="">団体の取得に失敗</option>';
+        }
+    };
     
     const handleLogin = async (event) => {
         event.preventDefault();
@@ -332,11 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             localStorage.setItem('authToken', data.token);
             await updateUI();
-
-            // タイマーを開始（この行を追加）
             resetInactivityTimer();
             
-            // ★初回ログインチェック
             if (data.organization && data.organization.isFirstLogin) {
                 showViewWithHistory('first-login-setup-view', false);
             } else {
@@ -351,7 +309,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const handleLogout = () => {
-        // タイマーをクリア（この部分を追加）
         if (inactivityTimer) {
             clearTimeout(inactivityTimer);
             inactivityTimer = null;
@@ -360,29 +317,20 @@ document.addEventListener('DOMContentLoaded', () => {
         token = null;
         allClassroomsData = [];
         elements.userInfo.classList.add('hidden');
-        
-        // ログイン画面に遷移
         showViewWithHistory('login-view', false);
     };
     
-    // ========== 教室データ管理 ==========
+    // 教室データ管理
     const fetchAllClassrooms = async () => {
         try {
-            // トークンチェックを追加
-            if (!token) {
-                console.log('教室データ取得スキップ: 未ログイン');
-                return;
-            }
+            if (!token) return;
             
             const data = await apiCall('/api/classrooms/all');
-            
             if (!Array.isArray(data)) {
                 throw new Error('サーバーからの応答が不正です');
             }
             
             allClassroomsData = data;
-            console.log('教室データ取得完了:', allClassroomsData.length, '室');
-            
         } catch (error) {
             console.error('教室データの取得に失敗:', error.message);
             allClassroomsData = [];
@@ -406,7 +354,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // フロアSVGデータ
         const floorSvgs = {
             '1': `<image href="./images/floor1.png" width="800" height="600" />
                 <rect class="classroom-shape" data-classroom-id="1" x="82" y="319" width="66" height="82"><title>C101</title></rect>
@@ -443,11 +390,9 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.floorMapSvg.innerHTML = floorSvgs[selectedFloor] || `<text x="20" y="40" font-size="24">平面図が見つかりません</text>`;
         
         try {
-            // 予約状況を取得
             const reservationData = await apiCall(`/api/reservations/status?date=${selectedDate}`);
             const reservedIds = new Set(reservationData.reservedClassroomIds);
             
-            // 音出し禁止情報を取得
             const closures = await apiCall(`/api/classroom-closures?date=${selectedDate}`);
             const noSoundIds = new Set(
                 closures
@@ -486,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // ========== 予約モーダル ==========
+    // 予約モーダル
     const openReservationModal = async (classroomId) => {
         try {
             const period = getReservationPeriod();
@@ -506,12 +451,10 @@ document.addEventListener('DOMContentLoaded', () => {
             dateInput.max = toYYYYMMDD(period.end);
             dateInput.value = elements.mapDatePicker.value;
             
-            // 音出し禁止チェック
             if (dateInput.value) {
                 await checkSoundRestriction(classroomId, dateInput.value);
             }
             
-            // 日付変更時のイベント
             dateInput.onchange = async () => {
                 if (dateInput.value) {
                     await checkSoundRestriction(classroomId, dateInput.value);
@@ -531,7 +474,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const checkSoundRestriction = async (classroomId, date) => {
         try {
-            // 管理者用APIではなく、一般ユーザー用APIを使用
             const closures = await apiCall(`/api/classroom-closures?date=${date}`);
             const restriction = closures.find(c => 
                 c.classroom_id === parseInt(classroomId) && 
@@ -552,11 +494,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('音出し制限チェックエラー:', error);
-            // エラーが発生しても処理を続行（警告を表示しない）
         }
     };
     
-    // ========== カレンダー機能 ==========
+    // カレンダー機能
     const renderCalendar = async () => {
         const year = currentCalendarDate.getFullYear();
         const month = currentCalendarDate.getMonth();
@@ -569,7 +510,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const calendarGrid = document.createElement('div');
         calendarGrid.className = 'calendar-grid';
         
-        // 曜日ヘッダー
         const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
         weekDays.forEach((day, index) => {
             const header = document.createElement('div');
@@ -580,7 +520,6 @@ document.addEventListener('DOMContentLoaded', () => {
             calendarGrid.appendChild(header);
         });
         
-        // カレンダー日付生成
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
         const firstDayOfWeek = firstDay.getDay();
@@ -591,14 +530,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const monthReservations = await fetchMonthReservations(year, month);
         
-        // 前月の日付
         const prevMonthLastDay = new Date(year, month, 0).getDate();
         for (let i = firstDayOfWeek - 1; i >= 0; i--) {
             const dayDiv = createDayElement(year, month - 1, prevMonthLastDay - i, true);
             calendarGrid.appendChild(dayDiv);
         }
         
-        // 当月の日付
         for (let day = 1; day <= daysInMonth; day++) {
             const currentDate = new Date(year, month, day);
             const dateStr = formatDateForAPI(currentDate);
@@ -608,7 +545,6 @@ document.addEventListener('DOMContentLoaded', () => {
             calendarGrid.appendChild(dayDiv);
         }
         
-        // 翌月の日付
         const remainingDays = 42 - (firstDayOfWeek + daysInMonth);
         for (let day = 1; day <= remainingDays; day++) {
             const dayDiv = createDayElement(year, month + 1, day, true);
@@ -714,7 +650,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.classList.remove('hidden');
     };
     
-    // ========== 管理画面 ==========
+    // 管理画面
     const initializeAdminPanel = async () => {
         await loadExistingClosures();
         renderClassroomMatrix();
@@ -754,7 +690,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const table = document.createElement('table');
             table.className = 'classroom-matrix';
             
-            // ヘッダー行
             const headerRow = document.createElement('tr');
             headerRow.innerHTML = '<th>教室</th>';
             
@@ -769,7 +704,6 @@ document.addEventListener('DOMContentLoaded', () => {
            
             table.appendChild(headerRow);
            
-           // C棟の教室のみ表示
            const cBuildingClassrooms = allClassrooms
                .filter(c => c.room_number && c.room_number.startsWith('C'))
                .sort((a, b) => a.room_number.localeCompare(b.room_number));
@@ -777,12 +711,10 @@ document.addEventListener('DOMContentLoaded', () => {
            cBuildingClassrooms.forEach(classroom => {
                const row = document.createElement('tr');
                
-               // 教室名
                const nameCell = document.createElement('td');
                nameCell.textContent = classroom.room_number;
                row.appendChild(nameCell);
                
-               // 各日付のセル
                dates.forEach(date => {
                    const cell = document.createElement('td');
                    const dateStr = formatDateForAPI(date);
@@ -826,11 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
    
    const loadSystemNotice = async () => {
         try {
-            // トークンチェックを追加
-            if (!token) {
-                console.log('お知らせ取得スキップ: 未ログイン');
-                return;
-            }
+            if (!token) return;
             
             const data = await apiCall('/api/system-notice');
             
@@ -867,7 +795,6 @@ document.addEventListener('DOMContentLoaded', () => {
        }
    };
 
-   // パスワードリセット用団体一覧の取得
    const populatePasswordResetDropdown = async () => {
        try {
            const organizations = await apiCall('/api/organizations', {}, true);
@@ -876,7 +803,6 @@ document.addEventListener('DOMContentLoaded', () => {
            if (select) {
                select.innerHTML = '<option value="">団体を選択してください</option>';
                organizations.forEach(org => {
-                   // 管理者以外の団体のみ表示
                    if (org.login_id !== 'admin') {
                        const option = document.createElement('option');
                        option.value = org.login_id;
@@ -890,7 +816,7 @@ document.addEventListener('DOMContentLoaded', () => {
        }
    };
    
-   // ========== 履歴関連 ==========
+   // 履歴関連
    const fetchHistory = async () => {
        showView('history-view');
        elements.requestsList.innerHTML = '<li>読み込み中...</li>';
@@ -974,18 +900,12 @@ document.addEventListener('DOMContentLoaded', () => {
        }
    };
    
-   // ========== イベントリスナー設定 ==========
+   // イベントリスナー設定
    const setupEventListeners = () => {
-       console.log('🔗 イベントリスナーを設定中...');
-       
        // ログイン関連
        elements.loginForm?.addEventListener('submit', handleLogin);
-       elements.forgotPasswordLink?.addEventListener('click', (e) => {
-           e.preventDefault();
-           showViewWithHistory('forgot-password-view');
-       });
        
-       // 初回ログイン設定フォーム
+       // 初回ログイン設定
         const firstLoginForm = document.getElementById('first-login-form');
             if (firstLoginForm && !firstLoginForm.hasAttribute('data-listener-added')) {
                 firstLoginForm.setAttribute('data-listener-added', 'true');
@@ -995,7 +915,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const newPassword = document.getElementById('first-login-new-password').value;
                     const confirmPassword = document.getElementById('first-login-confirm-password').value;
                     
-                    // パスワード確認
                     if (newPassword !== confirmPassword) {
                         alert('パスワードが一致しません。');
                         return;
@@ -1011,7 +930,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             body: JSON.stringify({ newPassword })
                         });
                         
-                        // 新しいトークンを保存
                         if (response.token) {
                             localStorage.setItem('authToken', response.token);
                         }
@@ -1029,7 +947,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-       // パスワード変更フォーム
+       // パスワード変更
        const passwordChangeForm = document.getElementById('password-change-form');
        if (passwordChangeForm && !passwordChangeForm.hasAttribute('data-listener-added')) {
            passwordChangeForm.setAttribute('data-listener-added', 'true');
@@ -1066,14 +984,13 @@ document.addEventListener('DOMContentLoaded', () => {
            });
        }
 
-       // ヘッダー関連
+       // ヘッダー
        elements.logoutButton?.addEventListener('click', () => {
             handleLogout();
         });
        elements.profileButton?.addEventListener('click', async () => {
             showViewWithHistory('profile-view');
             
-            // 現在のユーザー情報を取得してフォームに設定
             try {
                 const userInfo = await apiCall('/api/user-info');
                 document.getElementById('display-name').textContent = userInfo.name;
@@ -1124,7 +1041,6 @@ document.addEventListener('DOMContentLoaded', () => {
        elements.adminPanelButton?.addEventListener('click', async () => {
            showViewWithHistory('admin-view');
            
-           // タブ切り替えの設定
            document.querySelectorAll('.admin-tab').forEach(tab => {
                tab.addEventListener('click', (e) => {
                    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
@@ -1140,7 +1056,6 @@ document.addEventListener('DOMContentLoaded', () => {
                        targetContent.classList.remove('hidden');
                    }
                    
-                   // 各タブに応じた処理
                    if (tabName === 'permanent-closure') {
                        fetchAdminClassroomList();
                    } else if (tabName === 'notice-management') {
@@ -1153,7 +1068,6 @@ document.addEventListener('DOMContentLoaded', () => {
                });
            });
            
-           // 保存ボタンの設定
             const saveClosuresBtn = document.getElementById('save-closures');
             if (saveClosuresBtn && !saveClosuresBtn.hasAttribute('data-listener-added')) {
                 saveClosuresBtn.setAttribute('data-listener-added', 'true');
@@ -1205,7 +1119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                });
            }
 
-           // 管理者用パスワードリセットフォーム
+           // 管理者用パスワードリセット
            const adminPasswordResetForm = document.getElementById('admin-password-reset-form');
            if (adminPasswordResetForm && !adminPasswordResetForm.hasAttribute('data-listener-added')) {
                adminPasswordResetForm.setAttribute('data-listener-added', 'true');
@@ -1232,12 +1146,10 @@ document.addEventListener('DOMContentLoaded', () => {
                            body: JSON.stringify({ loginId })
                        });
                        
-                       // 結果を表示
                        document.getElementById('reset-org-name').textContent = document.getElementById('reset-target-organization').selectedOptions[0].textContent;
                        document.getElementById('new-password-display').textContent = response.newPassword;
                        document.getElementById('reset-result').classList.remove('hidden');
                        
-                       // フォームをリセット
                        e.target.reset();
                        
                    } catch (error) {
@@ -1249,7 +1161,6 @@ document.addEventListener('DOMContentLoaded', () => {
                });
            }
 
-           // パスワードコピーボタン
            const copyPasswordBtn = document.getElementById('copy-password');
            if (copyPasswordBtn && !copyPasswordBtn.hasAttribute('data-listener-added')) {
                copyPasswordBtn.setAttribute('data-listener-added', 'true');
@@ -1382,11 +1293,9 @@ document.addEventListener('DOMContentLoaded', () => {
                showViewWithHistory('login-view');
            });
        });
-       
-       console.log('✅ 全てのイベントリスナー設定完了');
    };
    
-   // 恒久的な教室使用可否リストの取得
+   // 教室リスト取得（管理者用）
    const fetchAdminClassroomList = async () => {
        elements.adminClassroomList.innerHTML = '<li>読み込み中...</li>';
        try {
@@ -1411,19 +1320,17 @@ document.addEventListener('DOMContentLoaded', () => {
        });
    };
    
-   // ========== 初期化処理 ==========
+   // 初期化処理
    const initializeApp = async () => {
         setupEventListeners();
-        setupActivityMonitoring(); // この行を追加
+        setupActivityMonitoring();
         await populateGroupDropdown();
         
-        // トークンが存在する場合のみupdateUIを呼ぶ
         const token = localStorage.getItem('authToken');
         if (token) {
             await updateUI();
             showViewWithHistory('home-view', false);
         } else {
-            // トークンがない場合はログイン画面を表示
             showViewWithHistory('login-view', false);
         }
     };
