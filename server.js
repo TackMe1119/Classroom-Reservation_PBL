@@ -805,8 +805,38 @@ function getReservationPeriod() {
 }
 
 // 日ごとの予約リクエストAPI
-app.post('/api/reservation-request', authenticateToken, (req, res) => {
+app.post('/api/reservation-request', authenticateToken, async(req, res) => {
   const { requestDate, classroomIds, purpose, expectedParticipants } = req.body;
+  const organizationId = req.user.id;
+
+  try {
+        const reservationLimit = 3;
+
+        const existingReservations = await new Promise((resolve, reject) => {
+            const sql = "SELECT COUNT(*) as count FROM reservations WHERE organization_id = ? AND reservation_date = ?";
+            db.get(sql, [organizationId, requestDate], (err, row) => {
+                if (err) return reject(new Error('既存の予約数の確認に失敗しました。'));
+                resolve(row.count);
+            });
+        });
+
+        const pendingRequests = await new Promise((resolve, reject) => {
+            const sql = "SELECT COUNT(*) as count FROM reservation_requests WHERE organization_id = ? AND request_date = ? AND status = 'pending' AND is_cancelled = 0";
+            db.get(sql, [organizationId, requestDate], (err, row) => {
+                if (err) return reject(new Error('申請中の予約数の確認に失敗しました。'));
+                resolve(row.count);
+            });
+        });
+    
+        if (existingReservations + pendingRequests >= reservationLimit) {
+            return res.status(400).json({
+                error: `1日の予約上限（${reservationLimit}件）に達しているため、同じ日にはこれ以上予約できません。`
+            });
+        }
+    } catch (error) {
+        console.error('予約上限チェックエラー:', error);
+        return res.status(500).json({ error: 'サーバーエラーが発生しました。' });
+    }
 
   const getWeekNumber = (date) => {
     const baseDate = new Date('2024-01-01');
