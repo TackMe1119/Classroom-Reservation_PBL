@@ -814,6 +814,37 @@ app.get('/api/classroom-closures', authenticateToken, (req, res) => {
   });
 });
 
+// デバッグ用エンドポイント（問題解決後は削除してください）
+app.get('/api/debug/check-db', (req, res) => {
+  const results = {};
+  
+  db.all("SELECT name FROM sqlite_master WHERE type='table'", [], (err, tables) => {
+    if (err) {
+      return res.status(500).json({ error: 'テーブル確認エラー', details: err.message });
+    }
+    
+    results.tables = tables.map(t => t.name);
+    
+    db.get("SELECT COUNT(*) as count FROM classrooms", [], (err, row) => {
+      if (err) {
+        results.classroomCount = 'エラー: ' + err.message;
+      } else {
+        results.classroomCount = row.count;
+      }
+      
+      db.all("SELECT * FROM classrooms LIMIT 5", [], (err, rows) => {
+        if (err) {
+          results.sampleClassrooms = 'エラー: ' + err.message;
+        } else {
+          results.sampleClassrooms = rows;
+        }
+        
+        res.json(results);
+      });
+    });
+  });
+});
+
 // スケジューラー設定
 cron.schedule('*/5 * * * *', processReservationRequests);
 cron.schedule('1 0 * * 1', cleanupOldRecords);
