@@ -851,6 +851,11 @@ document.addEventListener('DOMContentLoaded', () => {
            if (req.is_cancelled) statusText = 'キャンセル済み';
            
            const requestedRooms = req.requested_classrooms_details.map(r => r.room_number).join(', ');
+
+           const submittedAtJST = new Date(req.submitted_at).toLocaleString('ja-JP', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
            
            li.innerHTML = `
                <p><strong>申請日時:</strong> ${new Date(req.submitted_at).toLocaleString('ja-JP')}</p>
